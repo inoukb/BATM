@@ -56,29 +56,21 @@
 
 			<div class="row-fluid">
 		  	<div class="span2">
-				<h2>Photos</h2>
       	<p>Stream of photos taken around...</p>
-
-				<p><img src="assets/img/140x140.gif" class="img-rounded"><br><i class="icon-tag"></i> Nancy, Fr</p>
-				<p><img src="assets/img/140x140.gif" class="img-rounded"><br><i class="icon-tag"></i> Nancy, Fr</p>
-				<p><img src="assets/img/140x140.gif" class="img-rounded"><br><i class="icon-tag"></i> Nancy, Fr</p>
-				<p><img src="assets/img/140x140.gif" class="img-rounded"><br><i class="icon-tag"></i> Nancy, Fr</p>
-
+                            <div id="stream">
+    				</div>
 			</div>
 		
 			<div class="span10">
 				
-				<h2>MAP</h2>
-				
 				<p>
-					<form class="form-search">
-				  	<input type="text" placeholder="Location..." class="input-large search-query">
-				  	<button type="submit" class="btn">Search</button>
+					<form class="form-search" onsubmit="return false;">
+				  	<input id="search" type="text" placeholder="Location..." class="input-large search-query">
 					</form>
 				</p>
 
 				<div style="width:800px;height:600px" id="map"></div>
-				<div id="location"></div>
+				<div id="location" style="display:none;"></div>
 		
 			</div>
 			
@@ -87,46 +79,76 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">
+google.load("maps", "3", {
+    callback: initialize,
+    other_params: "sensor=false&libraries=places"
+});
+function initialize() {
+    // Initialize default values
+    var zoom = 3;
+    var latlng = new google.maps.LatLng(37.4419, - 100.1419);
+    var location = "Showing default location for map.";
 
-		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
-		<script type="text/javascript">
-		  google.load("maps", "3",  {callback: initialize, other_params:"sensor=false"});
+    // If ClientLocation was filled in by the loader, use that info instead
+    if (google.loader.ClientLocation) {
+        zoom = 13;
+        latlng = new google.maps.LatLng(google.loader.ClientLocation.latitude, google.loader.ClientLocation.longitude);
+        location = "Showing IP-based location: <b>" + getFormattedLocation() + "</b>";
+    }
 
-		  function initialize() {
-		    // Initialize default values
-		    var zoom = 3;
-		    var latlng = new google.maps.LatLng(37.4419, -100.1419);
-		    var location = "Showing default location for map.";
+    var myOptions = {
+        zoom: zoom,
+        center: latlng,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
 
-		    // If ClientLocation was filled in by the loader, use that info instead
-		    if (google.loader.ClientLocation) {
-		      zoom = 13;
-		      latlng = new google.maps.LatLng(google.loader.ClientLocation.latitude, google.loader.ClientLocation.longitude);
-		      location = "Showing IP-based location: <b>" + getFormattedLocation() + "</b>";
-		    }
+    var map = new google.maps.Map(document.getElementById("map"), myOptions);
+    document.getElementById("location").innerHTML = location;
 
-		    var myOptions = {
-		      zoom: zoom,
-		      center: latlng,
-		      mapTypeId: google.maps.MapTypeId.ROADMAP
-		    }
+    var autocompleteInput = document.getElementById("search");
+    var autocomplete = new google.maps.places.Autocomplete(autocompleteInput);
+    autocomplete.bindTo('bounds', map);
 
-		    var map = new google.maps.Map(document.getElementById("map"), myOptions);
-		    document.getElementById("location").innerHTML = location;
-		  }
+    google.maps.event.addListener(autocomplete, 'place_changed', function () {
+        var place = autocomplete.getPlace();
+        if (place && place.geometry && place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+        }
+    });
 
-		  function getFormattedLocation() {
-		    if (google.loader.ClientLocation.address.country_code == "US" &&
-		      google.loader.ClientLocation.address.region) {
-		      return google.loader.ClientLocation.address.city + ", " 
-		          + google.loader.ClientLocation.address.region.toUpperCase();
-		    } else {
-		      return  google.loader.ClientLocation.address.city + ", "
-		          + google.loader.ClientLocation.address.country_code;
-		    }
-		  }
+    // retrieve photos
+    retrievePhotos();
+}
 
-		</script>
+function getFormattedLocation() {
+    if (google.loader.ClientLocation.address.country_code == "US" && google.loader.ClientLocation.address.region) {
+        return google.loader.ClientLocation.address.city + ", " + google.loader.ClientLocation.address.region.toUpperCase();
+    } else {
+        return google.loader.ClientLocation.address.city + ", " + google.loader.ClientLocation.address.country_code;
+    }
+}
+
+var url = "http://against-themachine.rhcloud.com";
+
+function retrievePhotos() {
+var data = [{"longitude":6.17229,"latitude":48.6949,"radius":2192.0,"photo":"photoGet?file=1351433072743-317311556","comment":"","timestamp":1351433072000},{"longitude":6.17693,"latitude":48.694,"radius":966.0,"photo":"photoGet?file=1351429147876-773105152","comment":"","timestamp":1351396800000},{"longitude":6.17229,"latitude":48.6949,"radius":2192.0,"photo":"photoGet?file=1351429822800-639547061","comment":"Test","timestamp":1351396800000},{"longitude":6.17229,"latitude":48.6949,"radius":2192.0,"photo":"photoGet?file=1351432561058-868075302","comment":"Top","timestamp":1351432561000},{"longitude":6.17229,"latitude":48.6949,"radius":2192.0,"photo":"photoGet?file=1351433461737-15162229","comment":"Trop beau","timestamp":1351433461000},{"longitude":6.17229,"latitude":48.6949,"radius":2192.0,"photo":"photoGet?file=1351436347465-486703973","comment":"","timestamp":1351436347000}];
+display(data);
+//$.getJSON(url + '/photoList', function(data) {
+//    console.log(data);
+//});
+}
+
+function display(data) {
+  for(var i=0; i<data.length; i++){
+    var entry = data[i];
+    $('#stream').append("<p><img src='" + url + '/' + entry["photo"] + "' class='img-rounded'><br><i class='icon-tag'></i> Nancy, Fr</p>");
+  }
+}
+
+</script>
 		
   </body>
 </html>
