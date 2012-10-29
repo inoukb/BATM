@@ -70,7 +70,6 @@
 				</p>
 
 				<div style="width:800px;height:600px" id="map"></div>
-				<div id="location" style="display:none;"></div>
 		
 			</div>
 			
@@ -86,17 +85,16 @@ google.load("maps", "3", {
     callback: initialize,
     other_params: "sensor=false&libraries=places"
 });
+var map;
 function initialize() {
     // Initialize default values
     var zoom = 3;
     var latlng = new google.maps.LatLng(37.4419, - 100.1419);
-    var location = "Showing default location for map.";
 
     // If ClientLocation was filled in by the loader, use that info instead
     if (google.loader.ClientLocation) {
         zoom = 13;
         latlng = new google.maps.LatLng(google.loader.ClientLocation.latitude, google.loader.ClientLocation.longitude);
-        location = "Showing IP-based location: <b>" + getFormattedLocation() + "</b>";
     }
 
     var myOptions = {
@@ -105,8 +103,7 @@ function initialize() {
         mapTypeId: google.maps.MapTypeId.ROADMAP
     }
 
-    var map = new google.maps.Map(document.getElementById("map"), myOptions);
-    document.getElementById("location").innerHTML = location;
+    map = new google.maps.Map(document.getElementById("map"), myOptions);
 
     var autocompleteInput = document.getElementById("search");
     var autocomplete = new google.maps.places.Autocomplete(autocompleteInput);
@@ -123,29 +120,43 @@ function initialize() {
     retrievePhotos();
 }
 
-function getFormattedLocation() {
-    if (google.loader.ClientLocation.address.country_code == "US" && google.loader.ClientLocation.address.region) {
-        return google.loader.ClientLocation.address.city + ", " + google.loader.ClientLocation.address.region.toUpperCase();
-    } else {
-        return google.loader.ClientLocation.address.city + ", " + google.loader.ClientLocation.address.country_code;
-    }
-}
-
-var url = "http://against-themachine.rhcloud.com";
+var url = "http://192.168.0.11:8080/api/photo";
 
 function retrievePhotos() {
-var data = [{"longitude":6.17229,"latitude":48.6949,"radius":2192.0,"photo":"photoGet?file=1351433072743-317311556","comment":"","timestamp":1351433072000},{"longitude":6.17693,"latitude":48.694,"radius":966.0,"photo":"photoGet?file=1351429147876-773105152","comment":"","timestamp":1351396800000},{"longitude":6.17229,"latitude":48.6949,"radius":2192.0,"photo":"photoGet?file=1351429822800-639547061","comment":"Test","timestamp":1351396800000},{"longitude":6.17229,"latitude":48.6949,"radius":2192.0,"photo":"photoGet?file=1351432561058-868075302","comment":"Top","timestamp":1351432561000},{"longitude":6.17229,"latitude":48.6949,"radius":2192.0,"photo":"photoGet?file=1351433461737-15162229","comment":"Trop beau","timestamp":1351433461000},{"longitude":6.17229,"latitude":48.6949,"radius":2192.0,"photo":"photoGet?file=1351436347465-486703973","comment":"","timestamp":1351436347000}];
-display(data);
-//$.getJSON(url + '/photoList', function(data) {
-//    console.log(data);
-//});
+$.getJSON(url, function(data) {
+    displayAll(data);
+});
 }
 
-function display(data) {
+function displayAll(data) {
   for(var i=0; i<data.length; i++){
-    var entry = data[i];
-    $('#stream').append("<p><img src='" + url + '/' + entry["photo"] + "' class='img-rounded'><br><i class='icon-tag'></i> Nancy, Fr</p>");
+    display(data[i]);
   }
+}
+function display(entry) {
+        var image = 'data:image/jpeg;base64,' + entry["photo"];
+    $('#stream').append('<p><a href="/boulet/' + entry["id"] + '"><img src="' + image + '" class="img-rounded"><br><i class="icon-tag"></i> Nancy, Fr</p>');
+
+
+        var contentString = '<div id="content">'+
+            '<div style="text-align: center; margin-bottom: 1em;"><img src="' + image + '" style="max-width: 100px; max-height: 100px;"></img></div>'+
+            '<div>' + entry["comment"] + '</div>'+
+            '<div style="text-align: right;"><a href="/boulet/' + entry["id"] + '">Voir</a></div>'+
+            '</div>';
+
+        var infowindow = new google.maps.InfoWindow({
+            content: contentString
+        });
+
+        var myLatLng = new google.maps.LatLng(entry["lat"], entry["lng"]);
+        var marker = new google.maps.Marker({
+            position: myLatLng,
+            map: map
+        });
+
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.open(map,marker);
+        });
 }
 
 </script>
