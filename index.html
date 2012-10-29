@@ -120,7 +120,7 @@ function initialize() {
     retrievePhotos();
 }
 
-var url = "http://192.168.0.11:8080/api/photo";
+var url = "/api/photo";
 
 function retrievePhotos() {
 $.getJSON(url, function(data) {
