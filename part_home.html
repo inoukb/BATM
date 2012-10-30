@@ -1,0 +1,97 @@
+
+    <div class="container">
+      <div class="row-fluid">
+        <div class="span2">
+          <p>Stream of photos taken around...</p>
+          <div id="stream"></div>
+        </div>
+        <div class="span10">
+          <p>
+            <form class="form-search" onsubmit="return false;">
+              <input id="search" type="text" placeholder="Location..." class="input-large search-query">
+            </form>
+          </p>
+          <div style="height:600px" id="map" class="map-canvas"></div>
+        </div>		
+    </div>
+
+<!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">
+google.load("maps", "3", {
+  callback: initialize,
+  other_params: "sensor=false&libraries=places"
+});
+var map;
+
+function initialize() {
+  // Initialize default values
+  var zoom = 3;
+  var latlng = new google.maps.LatLng(37.4419, - 100.1419);
+
+  // If ClientLocation was filled in by the loader, use that info instead
+  if (google.loader.ClientLocation) {
+    zoom = 13;
+    latlng = new google.maps.LatLng(google.loader.ClientLocation.latitude, google.loader.ClientLocation.longitude);
+  }
+
+  var myOptions = {
+    zoom: zoom,
+    center: latlng,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  }
+
+  map = new google.maps.Map(document.getElementById("map"), myOptions);
+
+  var autocompleteInput = document.getElementById("search");
+  var autocomplete = new google.maps.places.Autocomplete(autocompleteInput);
+  autocomplete.bindTo('bounds', map);
+
+  google.maps.event.addListener(autocomplete, 'place_changed', function () {
+    var place = autocomplete.getPlace();
+    if (place && place.geometry && place.geometry.viewport) {
+      map.fitBounds(place.geometry.viewport);
+    }
+  });
+
+  // retrieve photos
+  retrievePhotos();
+}
+
+var url = "/api/photo";
+
+function retrievePhotos() {
+  $.getJSON(url, function (data) {
+    displayAll(data);
+  });
+}
+
+function displayAll(data) {
+  for (var i = 0; i < data.length; i++) {
+    display(data[i]);
+  }
+}
+
+function display(entry) {
+  var image = 'data:image/jpeg;base64,' + entry["photo"];
+  $('#stream').append('<p><a href="/boulet/' + entry["id"] + '"><img src="' + image + '" class="img-rounded"><br><i class="icon-tag"></i> Nancy, Fr</p>');
+
+
+  var contentString = '<div id="content">' + '<div style="text-align: center; margin-bottom: 1em;"><img src="' + image + '" style="max-width: 100px; max-height: 100px;"></img></div>' + '<div>' + entry["comment"] + '</div>' + '<div style="text-align: right;"><a href="/boulet/' + entry["id"] + '">Voir</a></div>' + '</div>';
+
+  var infowindow = new google.maps.InfoWindow({
+    content: contentString
+  });
+
+  var myLatLng = new google.maps.LatLng(entry["lat"], entry["lng"]);
+  var marker = new google.maps.Marker({
+    position: myLatLng,
+    map: map
+  });
+
+  google.maps.event.addListener(marker, 'click', function () {
+    infowindow.open(map, marker);
+  });
+}
+</script>
