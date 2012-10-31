@@ -8,7 +8,7 @@
         <div class="span10">
           <p>
             <form class="form-search" onsubmit="return false;">
-              <input id="search" type="text" placeholder="Location..." class="input-large search-query">
+              <input id="search" type="text" placeholder="Location..." class="input-large search-query" />
             </form>
           </p>
           <div style="height:600px" id="map" class="map-canvas"></div>
@@ -75,7 +75,7 @@ function displayAll(data) {
 
 function display(entry) {
   var image = 'data:image/jpeg;base64,' + entry["photo"];
-  $('#stream').append('<p><a href="/boulet/' + entry["id"] + '"><img src="' + image + '" class="img-rounded"><br><i class="icon-tag"></i> Nancy, Fr</p>');
+  $('#stream').append('<p><a href="/photo/' + entry["id"] + '"><img src="' + image + '" class="img-rounded"><br><i class="icon-tag"></i> Nancy, Fr</p>');
 
 
   var contentString = '<div id="content">' + '<div style="text-align: center; margin-bottom: 1em;"><img src="' + image + '" style="max-width: 100px; max-height: 100px;"></img></div>' + '<div>' + entry["comment"] + '</div>' + '<div style="text-align: right;"><a href="/boulet/' + entry["id"] + '">Voir</a></div>' + '</div>';

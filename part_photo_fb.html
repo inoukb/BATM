@@ -1,0 +1,20 @@
+    <div class="container">
+      <div class="row-fluid">
+        <div class="span4">
+          <div style="text-align: center;"><img src="data:image/jpeg;base64,{{imageData}}" class="img-rounded" /></div>
+        </div>
+        <div class="span8">
+          <p><i class="icon-time"></i> {{date}}</p>
+          {% if comment!='' %}<p style="background-color: white; border: lightgray 1px solid; border-radius: 6px; padding: 10px 20px; margin: 0 0 20px;">{{comment}}</p>{% endif %}
+          <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/fr_FR/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+          <div id='comment' class="fb-comments" data-href="http://localhost" data-num-posts="5" data-width="750" style="background-color: white; border: lightgray 1px solid; border-radius: 6px; padding: 10px 10px 0;"></div>
+        </div>
+      </div>
+    </div>
